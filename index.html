@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Lista de Libros</title>
+<meta name="description" content="Lista de libros recomendados para conseguir">
+<meta property="og:title" content="Mi Lista de Libros 📚">
+<meta property="og:description" content="Lista de libros recomendados para conseguir">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #FAF8F4;
+    --warm: #F2EDE3;
+    --border: #E2DAC8;
+    --text: #2C2820;
+    --muted: #7A6E61;
+    --accent: #8B5E3C;
+    --accent-light: #F5EDE3;
+    --green: #3B6D11;
+    --green-light: #EAF3DE;
+    --tag-bg: #EDE8DF;
+    --tag-text: #5C4E3A;
+    --shadow: 0 1px 4px rgba(44,40,32,0.08);
+    --radius: 10px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  header {
+    background: var(--warm);
+    border-bottom: 1px solid var(--border);
+    padding: 2rem 1.5rem 1.5rem;
+    text-align: center;
+  }
+
+  header h1 {
+    font-family: 'Lora', serif;
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  header p {
+    font-size: 0.875rem;
+    color: var(--muted);
+    margin-top: 0.35rem;
+    font-weight: 300;
+  }
+
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 5rem;
+  }
+
+  .add-section {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow);
+  }
+
+  .add-section h2 {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+
+  .fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.625rem;
+  }
+
+  .fields .full { grid-column: 1 / -1; }
+
+  input, select, textarea {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.875rem;
+    font-family: 'DM Sans', sans-serif;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--cream);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    background: white;
+  }
+
+  input::placeholder, textarea::placeholder { color: var(--muted); }
+
+  textarea { resize: vertical; }
+
+  .btn-add {
+    margin-top: 0.75rem;
+    width: 100%;
+    padding: 0.7rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn-add:hover { background: #7A5030; }
+  .btn-add:active { transform: scale(0.98); background: #6F4A2E; }
+
+  .controls {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .controls input { flex: 1; min-width: 160px; }
+  .controls select { width: auto; min-width: 130px; }
+
+  .stats {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .stat-pill {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .book-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+  .book-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.125rem;
+    box-shadow: var(--shadow);
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 0.75rem;
+    align-items: start;
+    transition: border-color 0.15s;
+    animation: slideIn 0.2s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .book-card:hover { border-color: #C8BEA8; }
+  .book-card.comprado { opacity: 0.55; }
+
+  .check-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: all 0.15s;
+    font-size: 11px;
+    color: transparent;
+  }
+
+  .check-btn.done {
+    background: var(--green);
+    border-color: var(--green);
+    color: white;
+  }
+
+  .book-info { min-width: 0; }
+
+  .book-title {
+    font-family: 'Lora', serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+    word-break: break-word;
+  }
+
+  .book-card.comprado .book-title { text-decoration: line-through; color: var(--muted); }
+
+  .book-meta {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 0.2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .book-who {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 0.35rem;
+  }
+
+  .book-note {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 0.3rem;
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+  }
+
+  .prio-alta { background: #FDE8D8; color: #7A3A10; }
+  .prio-media { background: #FEF4DC; color: #7A5C10; }
+  .prio-baja { background: var(--tag-bg); color: var(--tag-text); }
+
+  .card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    flex-shrink: 0;
+  }
+
+  .del-btn {
+    width: 26px;
+    height: 26px;
+    border: none;
+    background: transparent;
+    color: var(--border);
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .del-btn:hover { color: #C0392B; background: #FCEBEB; }
+
+  .empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+
+  .share-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0; right: 0;
+    background: white;
+    border-top: 1px solid var(--border);
+    padding: 0.75rem 1rem;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    z-index: 10;
+  }
+
+  .share-bar button {
+    padding: 0.55rem 1.1rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.15s;
+    border: 1px solid var(--border);
+    background: var(--warm);
+    color: var(--text);
+  }
+
+  .share-bar button:hover { background: var(--border); }
+
+  .share-bar button.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  .share-bar button.primary:hover { background: #7A5030; }
+
+  .toast {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    background: var(--text);
+    color: white;
+    font-size: 0.8rem;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    z-index: 100;
+  }
+  .toast.show { opacity: 1; }
+
+  @media (max-width: 480px) {
+    .fields { grid-template-columns: 1fr; }
+    .fields .full { grid-column: 1; }
+    .controls { flex-direction: column; }
+    .controls input, .controls select { width: 100%; min-width: unset; }
+    .share-bar { gap: 0.35rem; }
+    .share-bar button { font-size: 0.72rem; padding: 0.5rem 0.7rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📚 Mi Lista de Libros</h1>
+  <p>Libros recomendados que quiero conseguir</p>
+</header>
+
+<div class="container">
+
+  <div class="add-section">
+    <h2>Agregar libro</h2>
+    <div class="fields">
+      <div class="full">
+        <input type="text" id="inp-titulo" placeholder="Título del libro *" />
+      </div>
+      <input type="text" id="inp-autor" placeholder="Autor" />
+      <input type="text" id="inp-quien" placeholder="¿Quién lo recomendó?" />
+      <select id="inp-prio">
+        <option value="alta">Prioridad alta</option>
+        <option value="media" selected>Prioridad media</option>
+        <option value="baja">Prioridad baja</option>
+      </select>
+      <select id="inp-genero">
+        <option value="">Género (opcional)</option>
+        <option>Ficción</option>
+        <option>No ficción</option>
+        <option>Historia</option>
+        <option>Ciencia</option>
+        <option>Filosofía</option>
+        <option>Diseño / Arte</option>
+        <option>Negocios</option>
+        <option>Desarrollo personal</option>
+        <option>Otro</option>
+      </select>
+      <div class="full">
+        <textarea id="inp-nota" rows="2" placeholder="Nota o contexto (opcional)..."></textarea>
+      </div>
+    </div>
+    <button class="btn-add" onclick="agregarLibro()">+ Agregar a la lista</button>
+  </div>
+
+  <div class="controls">
+    <input type="text" id="buscar" placeholder="Buscar..." oninput="renderLista()" />
+    <select id="filtro-prio" onchange="renderLista()">
+      <option value="">Todas las prioridades</option>
+      <option value="alta">Alta</option>
+      <option value="media">Media</option>
+      <option value="baja">Baja</option>
+    </select>
+    <select id="filtro-estado" onchange="renderLista()">
+      <option value="">Todos</option>
+      <option value="pendiente">Pendientes</option>
+      <option value="comprado">Comprados</option>
+    </select>
+  </div>
+
+  <div class="stats" id="stats"></div>
+  <div class="book-list" id="lista"></div>
+
+</div>
+
+<div class="share-bar">
+  <button onclick="exportarTexto()">📋 Copiar lista</button>
+  <button onclick="exportarJSON()">💾 Exportar JSON</button>
+  <button class="primary" onclick="compartirURL()">🔗 Compartir enlace</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let libros = [];
+
+  function cargarDesdeURL() {
+    try {
+      const hash = window.location.hash.slice(1);
+      if (hash) {
+        libros = JSON.parse(decodeURIComponent(atob(hash)));
+      }
+    } catch(e) {
+      console.warn('No se pudo cargar desde URL:', e);
+    }
+  }
+
+  function guardarEnURL() {
+    try {
+      const encoded = btoa(encodeURIComponent(JSON.stringify(libros)));
+      history.replaceState(null, '', '#' + encoded);
+    } catch(e) {}
+  }
+
+  function mostrarToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2400);
+  }
+
+  function agregarLibro() {
+    const titulo = document.getElementById('inp-titulo').value.trim();
+    if (!titulo) {
+      document.getElementById('inp-titulo').focus();
+      mostrarToast('El título es obligatorio');
+      return;
+    }
+    const libro = {
+      id: Date.now(),
+      titulo,
+      autor: document.getElementById('inp-autor').value.trim(),
+      quien: document.getElementById('inp-quien').value.trim(),
+      prio: document.getElementById('inp-prio').value,
+      genero: document.getElementById('inp-genero').value,
+      nota: document.getElementById('inp-nota').value.trim(),
+      comprado: false,
+      fecha: new Date().toLocaleDateString('es-CO', { day:'2-digit', month:'short', year:'numeric' })
+    };
+    libros.unshift(libro);
+    guardarEnURL();
+    renderLista();
+    ['inp-titulo','inp-autor','inp-quien','inp-nota'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('inp-prio').value = 'media';
+    document.getElementById('inp-genero').value = '';
+    mostrarToast('Libro agregado ✓');
+  }
+
+  function toggleComprado(id) {
+    const l = libros.find(x => x.id === id);
+    if (l) l.comprado = !l.comprado;
+    guardarEnURL();
+    renderLista();
+  }
+
+  function eliminar(id) {
+    if (!confirm('¿Eliminar este libro de la lista?')) return;
+    libros = libros.filter(x => x.id !== id);
+    guardarEnURL();
+    renderLista();
+  }
+
+  function renderLista() {
+    const q = document.getElementById('buscar').value.toLowerCase();
+    const fp = document.getElementById('filtro-prio').value;
+    const fe = document.getElementById('filtro-estado').value;
+
+    let filtrados = libros.filter(l => {
+      const matchQ = !q || l.titulo.toLowerCase().includes(q)
+        || (l.autor && l.autor.toLowerCase().includes(q))
+        || (l.quien && l.quien.toLowerCase().includes(q));
+      const matchP = !fp || l.prio === fp;
+      const matchE = !fe || (fe === 'comprado' ? l.comprado : !l.comprado);
+      return matchQ && matchP && matchE;
+    });
+
+    const total = libros.length;
+    const comprados = libros.filter(x => x.comprado).length;
+    const pendientes = total - comprados;
+
+    document.getElementById('stats').innerHTML = `
+      <div class="stat-pill">📖 ${total} en lista</div>
+      <div class="stat-pill">⏳ ${pendientes} pendientes</div>
+      ${comprados > 0 ? `<div class="stat-pill">✅ ${comprados} conseguidos</div>` : ''}
+    `;
+
+    const cont = document.getElementById('lista');
+    if (filtrados.length === 0) {
+      cont.innerHTML = `<div class="empty"><div style="font-size:2rem;margin-bottom:0.75rem">📭</div>No hay libros aquí todavía. ¡Agrega el primero!</div>`;
+      return;
+    }
+
+    cont.innerHTML = filtrados.map(l => {
+      const prioClass = `prio-${l.prio}`;
+      const prioLabel = { alta: 'Alta prioridad', media: 'Prioridad media', baja: 'Baja prioridad' }[l.prio];
+      return `
+      <div class="book-card${l.comprado ? ' comprado' : ''}">
+        <button class="check-btn${l.comprado ? ' done' : ''}" onclick="toggleComprado(${l.id})" title="${l.comprado ? 'Marcar pendiente' : 'Marcar como conseguido'}">✓</button>
+        <div class="book-info">
+          <div class="book-title">${esc(l.titulo)}</div>
+          <div class="book-meta">
+            ${l.autor ? `<span>${esc(l.autor)}</span>` : ''}
+            ${l.genero ? `<span class="tag">${esc(l.genero)}</span>` : ''}
+            <span class="tag ${prioClass}">${prioLabel}</span>
+          </div>
+          ${l.quien ? `<div class="book-who">Recomendado por: <strong>${esc(l.quien)}</strong></div>` : ''}
+          ${l.nota ? `<div class="book-note">"${esc(l.nota)}"</div>` : ''}
+        </div>
+        <div class="card-actions">
+          <button class="del-btn" onclick="eliminar(${l.id})" title="Eliminar">✕</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function esc(str) {
+    return (str || '')
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
+
+  function exportarTexto() {
+    if (libros.length === 0) { mostrarToast('La lista está vacía'); return; }
+    const lines = ['📚 MI LISTA DE LIBROS\n'];
+    const pend = libros.filter(x => !x.comprado);
+    const comp = libros.filter(x => x.comprado);
+    if (pend.length) {
+      lines.push('▸ POR CONSEGUIR\n');
+      pend.forEach(l => {
+        lines.push(`• ${l.titulo}${l.autor ? ` — ${l.autor}` : ''}${l.quien ? ` (rec. por ${l.quien})` : ''}`);
+      });
+    }
+    if (comp.length) {
+      lines.push('\n▸ YA CONSEGUIDOS\n');
+      comp.forEach(l => lines.push(`✓ ${l.titulo}${l.autor ? ` — ${l.autor}` : ''}`));
+    }
+    navigator.clipboard.writeText(lines.join('\n'))
+      .then(() => mostrarToast('Lista copiada al portapapeles ✓'))
+      .catch(() => mostrarToast('No se pudo copiar'));
+  }
+
+  function exportarJSON() {
+    if (libros.length === 0) { mostrarToast('La lista está vacía'); return; }
+    const blob = new Blob([JSON.stringify(libros, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'libros-recomendados.json';
+    a.click();
+    mostrarToast('JSON descargado ✓');
+  }
+
+  function compartirURL() {
+    guardarEnURL();
+    navigator.clipboard.writeText(window.location.href)
+      .then(() => mostrarToast('Enlace copiado — compártelo con quien quieras ✓'))
+      .catch(() => mostrarToast('Copia la URL desde la barra del navegador'));
+  }
+
+  document.getElementById('inp-titulo').addEventListener('keydown', e => {
+    if (e.key === 'Enter') agregarLibro();
+  });
+
+  cargarDesdeURL();
+  renderLista();
+</script>
+</body>
+</html>
